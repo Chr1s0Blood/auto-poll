@@ -14,10 +14,12 @@
     "moduleResolution": "NodeNext",
     "allowJs": true,
 
+    "outDir": "./build",
+    "rootDir": "./src",
+
     "paths": {
-      "@/*": ["./src/*"],
-      "@lib/*": ["./src/lib/*"],
-      "@config/*": ["./src/config/*"],
+      "@client/*": ["./src/client"],
+      "@server/*": ["./src/server"]
     }
   }
 }
