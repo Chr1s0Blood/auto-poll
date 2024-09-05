@@ -15,5 +15,9 @@ export const appEnv = cleanEnv(process.env,{
     GEMINI_MODEL: str({
         default: "gemini-1.5-flash",
         desc: "The model to use for the Gemini API."
-    })
+    }),
+    DATABASE_URL: str({
+        desc: "The URL for the database."
+    }),
+    ALLOWED_ORIGINS: str()
 })
