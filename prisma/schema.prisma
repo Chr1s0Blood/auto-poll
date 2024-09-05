@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model question {
+  id        String    @id @default(cuid())
+  title     String
+  createdAt DateTime? @default(now())
+  deletedAt DateTime?
+  isActive  Boolean?  @default(true)
+  options   option[]
+}
+
+model option {
+  id         String   @id @default(cuid())
+  name       String
+  question   question @relation(fields: [questionId], references: [id])
+  questionId String
+  vote       vote[]
+}
+
+model vote {
+  id                 String    @id @default(cuid())
+  option             option    @relation(fields: [optionId], references: [id])
+  optionId           String
+  deletedDescription String?
+  voter              voter     @relation(fields: [voterId], references: [id])
+  voterId            String
+  isActive           Boolean?  @default(true)
+  createdAt          DateTime? @default(now())
+  deletedAt          DateTime?
+}
+
+model voter {
+  id        String    @id @default(cuid())
+  code      String    @unique
+  country   String
+  state     String
+  createdAt DateTime? @default(now())
+  isActive  Boolean?  @default(true)
+  vote      vote[]
+}
+
+model system {
+  id      String        @id @default(cuid())
+  code    String
+  message String?
+  status  SYSTEM_STATUS @default(online)
+}
+
+enum SYSTEM_STATUS {
+  online
+  offline
+  maintenance
+}
