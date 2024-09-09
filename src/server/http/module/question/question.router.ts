@@ -6,7 +6,9 @@ export async function setupQuestionHttpRouter (fastify: FastifyInstance) {
     const controller = new QuestionController();
 
     async function getRoutes () {
-        fastify.get("/", controller.home)
+        fastify.get("/", controller.getQuestions)
+        fastify.get("/:id", controller.findQuestionById)
+        fastify.get("/random", controller.getRandomQuestion)
     }
 
     await getRoutes();

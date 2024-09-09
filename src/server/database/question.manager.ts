@@ -2,7 +2,6 @@ import { prisma } from "../config/db.js";
 import { DatabaseException } from "../exceptions/DatabaseException.js";
 import { IQuestionShemaFromRaw } from "../lib/gemini/interfaces/main.interface.js";
 
-
 export class QuestionManager {
   private questionModel: (typeof prisma)["question"];
 
@@ -69,6 +68,9 @@ export class QuestionManager {
         },
         skip: skip,
         take: pageSize,
+        orderBy: {
+          createdAt: "desc",
+        },
         include: {
           options: {
             include: {
@@ -85,6 +87,77 @@ export class QuestionManager {
       })
       .catch((error) => {
         throw new DatabaseException("Error getting questions", error);
+      });
+  }
+
+  async findQuestionById(id: string) {
+    return this.questionModel
+      .findUnique({
+        where: {
+          id: id,
+        },
+        include: {
+          options: {
+            orderBy: {
+              name: "asc",
+            },
+            include: {
+              _count: {
+                select: {
+                  vote: {
+                    where: { isActive: true },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      .catch((error) => {
+        throw new DatabaseException("Error getting question by id", error);
+      });
+  }
+
+  async getRandomQuestion(voterId: string) {
+
+    const count = await this.questionModel.count();
+
+    const index = Math.random() * count;
+    return this.questionModel
+      .findMany({
+        where: {
+          isActive: true,
+          options: {
+            some: {
+              vote: {
+                none: {
+                  voterId: voterId,
+                },
+              },
+            },
+          },
+        },
+        skip: index,
+        take: 1,
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          options: {
+            include: {
+              _count: {
+                select: {
+                  vote: {
+                    where: { isActive: true },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      .catch((error) => {
+        throw new DatabaseException("Error getting question", error);
       });
   }
 }

@@ -21,7 +21,7 @@ export default class VoteManager {
       });
   }
 
-  async findByVoteridAndQuestionId(voterId: string, questionId: string) {
+  async findByVoterIdAndQuestionId(voterId: string, questionId: string) {
     return this.voteModel
       .findFirst({
         where: {

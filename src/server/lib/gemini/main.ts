@@ -7,7 +7,6 @@ export const modelPoll = genAI.getGenerativeModel({
   model: appEnv.GEMINI_MODEL,
   generationConfig: {
     temperature: 2.0,
-    maxOutputTokens: 80,
     responseMimeType: "application/json",
     responseSchema: {
       type: SchemaType.OBJECT,
