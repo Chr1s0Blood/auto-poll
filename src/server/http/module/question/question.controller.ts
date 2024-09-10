@@ -41,9 +41,13 @@ export class QuestionController {
 
   async getRandomQuestion (req: FastifyRequest, reply: FastifyReply) {
 
+    const {category} = req.query as {
+      category?: string;
+    }
+
     const voterCode = req.cookies?.voter;
 
-    const result = await questionService.getRandomQuestion(voterCode);
+    const result = await questionService.getRandomQuestion(voterCode, category);
 
     const response = new CustomResponse({
       statusCode: 200,

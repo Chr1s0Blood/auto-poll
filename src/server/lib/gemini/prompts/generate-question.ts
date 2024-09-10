@@ -1,17 +1,18 @@
-
 import { modelPoll } from "../main.js";
-import { IQuestionShemaFromRaw } from '../interfaces/main.interface.js';
+import { TQuestionShemaFromRaw } from "../interfaces/main.interface.js";
 
-const promptContent = "Gere um título para uma votação e APENAS três opções de resposta. Seja criativo e aleatório (Mas mantendo o sentido)! (Em português brasileiro!). Evite temas perigosos, adultos (como sexo e relacionados), odio, etc."
-
-export function generateQuestionPrompt() {
-    return modelPoll.generateContent(promptContent)
+function getPrompt(category: string) {
+  return `Gere um título para uma votação e APENAS três opções de resposta. Seja criativo e que seja da categoria ${category}! (Mas mantendo o sentido)! (Em português brasileiro!). Evite temas perigosos, adultos (como sexo e relacionados), odio, etc.`;
 }
 
-export function getQuestionSchemaFromRaw (rawJson: string): IQuestionShemaFromRaw {
+export function generateQuestionPrompt(category: string) {
+  return modelPoll.generateContent(getPrompt(category));
+}
 
-    const parsedJson = JSON.parse(rawJson)
+export function getQuestionSchemaFromRaw(
+  rawJson: string
+): TQuestionShemaFromRaw {
+  const parsedJson = JSON.parse(rawJson);
 
-    return parsedJson
-
+  return parsedJson;
 }

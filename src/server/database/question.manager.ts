@@ -1,6 +1,6 @@
 import { prisma } from "../config/db.js";
 import { DatabaseException } from "../exceptions/DatabaseException.js";
-import { IQuestionShemaFromRaw } from "../lib/gemini/interfaces/main.interface.js";
+import { TQuestionShemaWithCategory } from "../lib/gemini/interfaces/main.interface.js";
 
 export class QuestionManager {
   private questionModel: (typeof prisma)["question"];
@@ -9,11 +9,12 @@ export class QuestionManager {
     this.questionModel = prisma.question;
   }
 
-  async create(data: IQuestionShemaFromRaw) {
+  async create(data: TQuestionShemaWithCategory) {
     return this.questionModel
       .create({
         data: {
           title: data.title,
+          categoryId: data.categoryId,
           options: {
             createMany: {
               data: data.options.map((option) => {
@@ -97,6 +98,7 @@ export class QuestionManager {
           id: id,
         },
         include: {
+          category: true,
           options: {
             orderBy: {
               name: "asc",
@@ -118,19 +120,37 @@ export class QuestionManager {
       });
   }
 
-  async getRandomQuestion(voterId: string) {
-
-    const count = await this.questionModel.count();
+  async getRandomQuestion(voterId: string, categoryId?: string) {
+    const count = await this.questionModel.count({
+      where: {
+        isActive: true,
+        ...(categoryId && {
+          categoryId: categoryId,
+        }),
+        options: {
+          none: {
+            vote: {
+              some: {
+                voterId: voterId,
+              },
+            },
+          },
+        },
+      },
+    });
 
     const index = Math.random() * count;
     return this.questionModel
       .findMany({
         where: {
           isActive: true,
+          ...(categoryId && {
+            categoryId: categoryId,
+          }),
           options: {
-            some: {
+            none: {
               vote: {
-                none: {
+                some: {
                   voterId: voterId,
                 },
               },
@@ -143,6 +163,7 @@ export class QuestionManager {
           createdAt: "desc",
         },
         include: {
+          category: true,
           options: {
             include: {
               _count: {

@@ -7,6 +7,7 @@ import { BaseException } from "./server/exceptions/BaseException.js";
 import { setupHttpRoutes } from "./server/http/routes.js";
 import { startGeminiQuestionPolls } from "./server/lib/gemini/start.js";
 import fastifyCookie from "@fastify/cookie";
+import { populateQuestionCategories } from "./server/database/populate/category-populate.js";
 
 export const app = Fastify();
 
@@ -50,7 +51,7 @@ const PORT = appEnv.PORT;
 try {
   await app.listen({ port: PORT });
   console.log(chalk.gray(`Server running on port ${appEnv.PORT} 🤖`));
-
+  await populateQuestionCategories()
   await startGeminiQuestionPolls()
 } catch (err) {
   app.log.error(err);
