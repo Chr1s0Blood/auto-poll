@@ -49,7 +49,7 @@ await setupHttpRoutes(app);
 const PORT = appEnv.PORT;
 
 try {
-  await app.listen({ port: PORT });
+  await app.listen({ port: PORT, host: "0.0.0.0" });
   console.log(chalk.gray(`Server running on port ${appEnv.PORT} 🤖`));
   await populateQuestionCategories()
   await startGeminiQuestionPolls()
