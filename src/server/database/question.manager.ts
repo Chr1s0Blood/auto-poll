@@ -1,6 +1,7 @@
 import { prisma } from "../config/db.js";
 import { DatabaseException } from "../exceptions/DatabaseException.js";
 import { TQuestionShemaWithCategory } from "../lib/gemini/interfaces/main.interface.js";
+import { TPaginationConfig } from "./types.js";
 
 export class QuestionManager {
   private questionModel: (typeof prisma)["question"];
@@ -180,5 +181,69 @@ export class QuestionManager {
       .catch((error) => {
         throw new DatabaseException("Error getting question", error);
       });
+  }
+
+  async getQuestionsByVoter(
+    voterId: string,
+    { page, pageSize }: TPaginationConfig,
+    title: string = ""
+  ) {
+
+    const skip = (page - 1) * pageSize;
+
+    return this.questionModel
+      .findMany({
+        skip: skip,
+        take: pageSize,
+        where: {
+          title: {
+            contains: title,
+          },
+          options: {
+            some: {
+              vote: {
+                some: {
+                  voterId: voterId,
+                },
+              },
+            },
+          },
+        },
+        include: {
+          category: true,
+          options: {
+            include: {
+              _count: {
+                select: {
+                  vote: {
+                    where: { isActive: true },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      .catch((error) => {
+        throw new DatabaseException("Error getting questions by voter", error);
+      });
+  }
+
+  async getTotalCountQuestionsVotedByVoterId (voterId: string) {
+    return this.questionModel.count({
+      where: {
+        options: {
+          some: {
+            vote: {
+              some: {
+                voterId: voterId,
+              },
+            },
+          },
+        },
+      },
+    }).catch((error) => {
+      throw new DatabaseException("Error getting total count questions voted by voter id", error);
+    });
   }
 }

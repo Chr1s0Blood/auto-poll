@@ -9,6 +9,7 @@ export async function setupQuestionHttpRouter (fastify: FastifyInstance) {
         fastify.get("/", controller.getQuestions)
         fastify.get("/:id", controller.findQuestionById)
         fastify.get("/random", controller.getRandomQuestion)
+        fastify.get("/me", controller.getVoterQuestions)
     }
 
     await getRoutes();

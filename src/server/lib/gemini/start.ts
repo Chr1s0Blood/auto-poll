@@ -12,7 +12,7 @@ export async function startGeminiQuestionPolls() {
 
   const categories = await categoriesRepository.getAll();
 
-  const job = Cron("*/20 * * * * *", async () => {
+  const job = Cron("*/60 * * * * *", async () => {
     try {
       const selectedCategory = await pickRandomCategory(categories);
 

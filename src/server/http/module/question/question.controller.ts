@@ -57,4 +57,24 @@ export class QuestionController {
 
     return reply.status(response.statusCode).send(response);
   }
+
+  async getVoterQuestions (req: FastifyRequest, reply: FastifyReply) {
+
+    const voterCode = req.cookies.voter;
+
+    const {page, title} = req.query as {
+      page?: number;
+      title?: string;
+    }
+
+    const result = await questionService.getQuestionsByVoter({page: page || 1, pageSize: 14}, voterCode, title);
+
+    const response = new CustomResponse({
+      statusCode: 200,
+      status: "success",
+      data: result,
+    }).toObj();
+
+    return reply.status(response.statusCode).send(response);
+  }
 }
