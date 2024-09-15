@@ -8,10 +8,26 @@ import { setupHttpRoutes } from "./server/http/routes.js";
 import { startGeminiQuestionPolls } from "./server/lib/gemini/start.js";
 import fastifyCookie from "@fastify/cookie";
 import { populateQuestionCategories } from "./server/database/populate/category-populate.js";
+import fastifyRateLimit from "@fastify/rate-limit";
+import { NotFoundException } from "./server/exceptions/NotFoundException.js";
 
 export const app = Fastify();
 
 await app.register(fastifyCookie)
+
+await app.register(fastifyRateLimit, {
+  max: 60,
+  timeWindow: "1m"
+})
+
+app.setNotFoundHandler({
+  preHandler: app.rateLimit({
+    max: 5,
+    timeWindow: "5s"
+  })
+}, function (request, reply) {
+  throw new NotFoundException("Route not found", "error");
+})
 
 await app.register(cors, {
   credentials: true,
